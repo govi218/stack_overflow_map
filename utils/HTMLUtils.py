@@ -35,3 +35,34 @@ def get_html(url):
     website = urllib.request.urlopen(url)
     html = website.read().decode()
     return html
+    
+    
+def produce_url(netloc, path):
+    scheme = "https"
+    url_tuple = (scheme, netloc, path, "", "", "")
+    return urllib.parse.urlunparse(url_tuple)
+
+def get_freq_words(url):
+    # Gets the most frequent words in a website and returns the most frequent words
+    # that are not common English words (using a defined list of common words)
+    common_words = ["to","of","in","for","on","with","at","by","from","up","about",
+                    "into","over","after","the","and","a","that","I","it","not","he",
+                    "as","you","this","but","his","they","her","she","or","an",
+                    "will","my","one","all","would","there","their"]
+    r = requests.get(url)
+
+    soup = BeautifulSoup(r.content)
+
+    text = (''.join(s.findAll(text=True))for s in soup.findAll('p'))
+
+    c = Counter((x.rstrip(punctuation).lower() for y in text for x in y.split()))
+    # prints most common words staring at most frequent, removing list of common words
+    ret = []
+    for val in c.most_common():
+        add = True
+        for word in common_words:
+            if val[0] == word:
+                add = False
+        if add == True:
+            ret.append((val[0], val[1]))
+    return(ret)
